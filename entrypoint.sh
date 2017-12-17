@@ -50,6 +50,6 @@ target=${1:-"/media/template"}
 pattern=$(render.py $target | kubectl -n $KUBE_NAMESPACE apply -f - | grep "deployment")
 if [ pattern != "" ]; then
   name=$(echo $pattern | sed -e 's/deployment "\([^"]\+\)".*/\1/g')
-  kubectl -n $KUBE_NAMESPACE rollout status $name
+  kubectl -n $KUBE_NAMESPACE rollout status deployment $name
 fi
 
