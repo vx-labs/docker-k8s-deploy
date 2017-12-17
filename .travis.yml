@@ -1,0 +1,11 @@
+sudo: required
+language: c
+services:
+  - docker
+script:
+  - make
+after_success:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  - docker push vxlabs/k8s-deploy:$TRAVIS_COMMIT;
+  - docker tag vxlabs/k8s-deploy:$TRAVIS_COMMIT vxlabs/k8s-deploy:latest
+  - docker push vxlabs/k8s-deploy:latest
