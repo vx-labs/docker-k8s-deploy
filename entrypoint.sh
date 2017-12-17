@@ -2,6 +2,11 @@
 # Inspired from https://gitlab.com/gitlab-examples/kubernetes-deploy/blob/master/src/common.bash
 # thx !
 
+# used vars and default values, if any
+KUBE_URL=${KUBE_URL}
+KUBE_TOKEN=${KUBE_TOKEN}
+KUBE_NAMESPACE=${KUBE_NAMESPACE}
+
 create_kubeconfig() {
   [[ -z "$KUBE_URL" ]] && return
 
@@ -41,5 +46,5 @@ create_kubeconfig
 ping_kube || exit 1
 
 
-target=${1}
+target=${1:-"/media/template"}
 render.py $target | kubectl -n $KUBE_NAMESPACE apply -f -
