@@ -47,4 +47,9 @@ ping_kube || exit 1
 
 
 target=${1:-"/media/template"}
-render.py $target | kubectl -n $KUBE_NAMESPACE apply -f -
+pattern=$(render.py $target | kubectl -n $KUBE_NAMESPACE apply -f - | grep "deployment")
+if [ pattern != "" ]; then
+  name=$(echo $pattern | sed -e 's/deployment "\([^"]\)".*/\1/g"')
+  kubectl -n $KUBE_NAMESPACE rollout status $name
+fi
+
