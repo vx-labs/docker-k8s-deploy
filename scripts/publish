@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+NS="vxlabs"
+REPO="k8s-deploy"
+TAG=${TRAVIS_COMMIT:-$(git log -1 --format=%H)}
+
+eval $(docker run --rm -e APPROLE_ID=${APPROLE_ID} -e APPROLE_SECRET=${APPROLE_SECRET} quay.io/${NS}/vault-envexport)
+echo ${DOCKER_PASSWORD} | docker login -u="${DOCKER_USERNAME}" --password-stdin ${DOCKER_REGISTRY}
+
+export IMG=${DOCKER_REGISTRY}/${NS}/${REPO}
+docker tag ${NS}/${REPO} ${IMG}:${TAG}
+docker push ${IMG}:${TAG}
+docker tag ${IMG}:${TAG} ${IMG}:latest
+docker push ${IMG}:latest
