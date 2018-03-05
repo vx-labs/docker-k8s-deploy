@@ -47,15 +47,21 @@ ping_kube || exit 1
 
 
 target=${1:-"/media/template"}
-pattern=$(render.py $target | kubectl -n $KUBE_NAMESPACE apply -f - | grep "deployment")
+pattern=$(render.py $target | kubectl -n $KUBE_NAMESPACE apply -f - | egrep "(deployment|daemonset)")
 if [ "$pattern" != "" ]; then
-  name=$(echo $pattern | sed -e 's/deployment "\([^"]\+\)".*/\1/g')
-  if [ -n "$name" ]; then
-    kubectl -n $KUBE_NAMESPACE rollout status deployment $name
-  fi
-  name=$(echo $pattern | sed -e 's/daemonset "\([^"]\+\)".*/\1/g')
-  if [ -n "$name" ]; then
-    kubectl -n $KUBE_NAMESPACE rollout status daemonset $name
-  fi
+  case "$pattern" in
+    "deployment*")
+      name=$(echo $pattern | sed -e 's/deployment "\([^"]\+\)".*/\1/g')
+      if [ -n "$name" ]; then
+        kubectl -n $KUBE_NAMESPACE rollout status deployment $name
+      fi
+      ;;
+    "daemonset*")
+      name=$(echo $pattern | sed -e 's/daemonset "\([^"]\+\)".*/\1/g')
+      if [ -n "$name" ]; then
+        kubectl -n $KUBE_NAMESPACE rollout status daemonset $name
+      fi
+      ;;
+  esac
 fi
 
